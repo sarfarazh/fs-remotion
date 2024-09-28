@@ -1,8 +1,7 @@
-// src/components/SubtitlesSentence.tsx
-
 import React from 'react';
 import { useCurrentFrame, useVideoConfig, interpolate } from 'remotion';
 
+// Define the type for each sentence in the transcription
 interface Sentence {
   sentence: string;
   start: number;
@@ -27,7 +26,7 @@ export const SubtitlesSentence: React.FC<SubtitlesSentenceProps> = ({
   textAlign,
 }) => {
   const frame = useCurrentFrame();
-  const { fps, height } = useVideoConfig();  // Access screen height to calculate position
+  const { fps, height } = useVideoConfig();
 
   const currentSentence = transcription.find(
     (sentence) => frame >= sentence.start * fps && frame <= sentence.end * fps
@@ -47,16 +46,15 @@ export const SubtitlesSentence: React.FC<SubtitlesSentenceProps> = ({
     }
   );
 
-  // Calculate the subtitle position based on the `subtitle_position` value
   const subtitlePosition = () => {
     switch (position) {
       case 'top':
-        return { top: height * 0.2 };  // 1/20 screen height from top
+        return { top: height * 0.2 };  // 20% from top
       case 'center':
         return { top: '50%', transform: 'translateY(-50%)' };  // Vertically center
       case 'bottom':
       default:
-        return { bottom: height * 0.2 };  // 1/20 screen height from bottom
+        return { bottom: height * 0.2 };  // 20% from bottom
     }
   };
 
@@ -70,7 +68,7 @@ export const SubtitlesSentence: React.FC<SubtitlesSentenceProps> = ({
         fontSize: `${fontSize}px`,
         color,
         opacity,
-        ...subtitlePosition(),  // Apply the calculated position
+        ...subtitlePosition(),
       }}
     >
       {currentSentence.sentence}

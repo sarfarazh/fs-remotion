@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCurrentFrame, useVideoConfig, interpolate } from 'remotion';
 
+// Define the type for each word in the transcription
 interface Word {
   word: string;
   start: number;
@@ -19,8 +20,8 @@ interface SubtitlesWordProps {
   fontFamily: string;
   fontSize: number;
   color: string;
-  position: 'bottom' | 'center' | 'top';
-  textAlign: 'center' | 'left' | 'right';
+  position: 'top' | 'center' | 'bottom';
+  textAlign: 'left' | 'center' | 'right';
 }
 
 export const SubtitlesWord: React.FC<SubtitlesWordProps> = ({
@@ -32,7 +33,7 @@ export const SubtitlesWord: React.FC<SubtitlesWordProps> = ({
   textAlign,
 }) => {
   const frame = useCurrentFrame();
-  const { fps} = useVideoConfig();
+  const { fps, height } = useVideoConfig();
 
   const currentSentence = transcription.find(
     (sentence) => frame >= sentence.start * fps && frame <= sentence.end * fps
@@ -55,32 +56,29 @@ export const SubtitlesWord: React.FC<SubtitlesWordProps> = ({
     extrapolateRight: 'clamp',
   });
 
-  // Function to calculate subtitle position dynamically
-  // Remove 'height' since it's declared but not used.
-    const subtitlePosition = () => {
-      switch (position) {
-        case 'top':
-          return { top: '20%' };
-        case 'center':
-          return { top: '50%', transform: 'translateY(-50%)' };
-        case 'bottom':
-        default:
-          return { bottom: '20%' };
-      }
-    };
-
+  const subtitlePosition = () => {
+    switch (position) {
+      case 'top':
+        return { top: height * 0.2 };  // 20% from top
+      case 'center':
+        return { top: '50%', transform: 'translateY(-50%)' };  // Vertically center
+      case 'bottom':
+      default:
+        return { bottom: height * 0.2 };  // 20% from bottom
+    }
+  };
 
   return (
     <div
       style={{
         position: 'absolute',
-        ...subtitlePosition(),
         width: '100%',
-        textAlign: textAlign,
+        textAlign,
         fontFamily,
         fontSize: `${fontSize}px`,
         color,
         opacity,
+        ...subtitlePosition(),
       }}
     >
       {currentWord.word}

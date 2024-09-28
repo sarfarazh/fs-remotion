@@ -1,35 +1,43 @@
-import React from 'react';
-import { AbsoluteFill, staticFile, useVideoConfig } from 'remotion';
-import { TransitionSeries, linearTiming } from '@remotion/transitions';
-import { fade } from '@remotion/transitions/fade';
+import React, { useEffect, useState } from 'react';
+import { AbsoluteFill, useVideoConfig, continueRender, delayRender } from 'remotion';
+import { SubtitlesSentence } from '../components/SubtitlesSentence';
 import { Slide } from '../components/Slide';
 import { AudioComponent } from '../components/AudioComponent';
-import { SubtitlesSentence } from '../components/SubtitlesSentence';
-import transcription from '../../public/transcription.json';
+import { TransitionSeries, linearTiming } from '@remotion/transitions';
+import { fade } from '@remotion/transitions/fade';
+import transcription from '../../public/transcription.json';  // Import transcription data
 import videoSettings from '../../public/video_settings.json'; // Import video settings
+import { getSlides } from '../getSlides';
+import { loadFont } from '@remotion/google-fonts/Lobster';  // Ensure the correct Google Font
 
 export const SentenceBasedComposition: React.FC = () => {
   const { fps, durationInFrames } = useVideoConfig();
-  const slides = ['slide_01.jpg', 'slide_02.jpg', 'slide_03.jpg', 'slide_04.jpg'];
+  const [handle] = useState(() => delayRender());
 
-  const totalTransitionFrames = Math.floor(durationInFrames * 0.1);
-  const totalImageDisplayFrames = durationInFrames - totalTransitionFrames;
-  const displayTimePerImage = Math.floor(totalImageDisplayFrames / slides.length);
+  useEffect(() => {
+    // Load the font and notify when it's done
+    const { waitUntilDone } = loadFont();
+    waitUntilDone().then(() => {
+      continueRender(handle);
+    });
+  }, [handle]);
 
-  const position = videoSettings.sentence_composition.subtitle_position as 'bottom' | 'center' | 'top';
+  const position = videoSettings.sentence_composition.subtitle_position as 'top' | 'center' | 'bottom';
   const textAlign = videoSettings.sentence_composition.subtitle_textAlign as 'center' | 'left' | 'right';
+  const slides = getSlides();
+  const slideDuration = Math.floor(durationInFrames / slides.length);
 
   return (
     <AbsoluteFill>
       <TransitionSeries>
-        {Array(Math.ceil(durationInFrames / displayTimePerImage))
+        {Array(Math.ceil(durationInFrames / slideDuration))
           .fill(0)
           .map((_, index) => (
             <React.Fragment key={index}>
-              <TransitionSeries.Sequence durationInFrames={displayTimePerImage}>
-                <Slide src={staticFile(slides[index % slides.length])} />
+              <TransitionSeries.Sequence durationInFrames={slideDuration}>
+                <Slide src={slides[index % slides.length]} />
               </TransitionSeries.Sequence>
-              {index < Math.ceil(durationInFrames / displayTimePerImage) - 1 && (
+              {index < Math.ceil(durationInFrames / slideDuration) - 1 && (
                 <TransitionSeries.Transition
                   presentation={fade()}
                   timing={linearTiming({ durationInFrames: Math.floor(fps / 2) })}
@@ -38,8 +46,6 @@ export const SentenceBasedComposition: React.FC = () => {
             </React.Fragment>
           ))}
       </TransitionSeries>
-
-      {/* Pass customizable properties from video-settings.json */}
       <AudioComponent />
       <SubtitlesSentence
         transcription={transcription.transcription}
