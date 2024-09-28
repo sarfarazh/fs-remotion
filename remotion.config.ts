@@ -1,4 +1,9 @@
 import { Config } from '@remotion/cli/config';
+import { enableTailwind } from '@remotion/tailwind';
+
+Config.overrideWebpackConfig((currentConfiguration) => {
+  return enableTailwind(currentConfiguration);
+});
 
 // Set concurrency for rendering (number of parallel Puppeteer instances)
 Config.setConcurrency(8);

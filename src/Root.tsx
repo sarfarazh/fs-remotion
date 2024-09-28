@@ -1,61 +1,42 @@
+// src/Root.tsx
+
+import React from 'react';
+import './style.css'; // Import TailwindCSS
 import { Composition } from 'remotion';
 import { SentenceBasedComposition } from './compositions/SentenceBasedComposition';
 import { WordBasedComposition } from './compositions/WordBasedComposition';
 import transcription from '../public/transcription.json';
 
-interface Word {
-  word: string;
-  start: number;
-  end: number;
-}
-
-interface Sentence {
-  sentence: string;
-  start: number;
-  end: number;
-  words: Word[];
-}
-
 export const RemotionRoot: React.FC = () => {
   const fps = 30;
-
-  // Calculate total duration in frames using transcription data
   const durationInFrames = calculateTotalDurationInFrames(transcription.transcription, fps);
 
   return (
     <>
-      {/* Register Sentence-Based Composition */}
-      <Composition
-        id="SentenceBasedComposition"
-        component={SentenceBasedComposition}
-        durationInFrames={durationInFrames}
-        fps={fps}
-        width={1920}
-        height={1080}
-      />
-
-      {/* Register Word-Based Composition */}
       <Composition
         id="WordBasedComposition"
         component={WordBasedComposition}
         durationInFrames={durationInFrames}
         fps={fps}
-        width={1920}
-        height={1080}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="SentenceBasedComposition"
+        component={SentenceBasedComposition}
+        durationInFrames={durationInFrames}
+        fps={fps}
+        width={1080}
+        height={1920}
       />
     </>
   );
 };
 
 // Helper function to calculate total duration in frames
-const calculateTotalDurationInFrames = (transcription: Sentence[], fps: number): number => {
-  // Find the end time of the last sentence in the transcription
-  const lastSentence = transcription[transcription.length - 1];
-  const lastWord = lastSentence.words[lastSentence.words.length - 1];
-
-  // Calculate the total duration based on the end time of the last word
-  const totalDurationInSeconds = lastWord.end;
-
-  // Convert the duration in seconds to frames
-  return Math.ceil(totalDurationInSeconds * fps);
+const calculateTotalDurationInFrames = (transcription: any[], fps: number) => {
+  return transcription.reduce((acc, sentence) => {
+    const sentenceDuration = Math.floor((sentence.end - sentence.start) * fps);
+    return acc + sentenceDuration;
+  }, 0);
 };

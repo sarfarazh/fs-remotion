@@ -1,0 +1,21 @@
+{
+    "word_composition": {
+      "subtitle_font": "Anton",
+      "subtitle_font_size": 60,
+      "subtitle_color": "#FBBF24",
+      "highlight_color": "#FFFF00",
+      "watermark": false,
+      "subtitle_position": "bottom",
+      "subtitle_textAlign": "center"
+    },
+    "sentence_composition": {
+      "subtitle_font": "Lobster",
+      "subtitle_font_size": 40,
+      "subtitle_color": "#FFFFFF",
+      "highlight_color": "#FFFF00",
+      "watermark": true,
+      "subtitle_position": "top",
+      "subtitle_textAlign": "center"
+    }
+  }
+  

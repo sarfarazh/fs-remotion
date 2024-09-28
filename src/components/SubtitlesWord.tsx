@@ -1,7 +1,6 @@
 import React from 'react';
 import { useCurrentFrame, useVideoConfig, interpolate } from 'remotion';
 
-// Define the type for each word in the transcription
 interface Word {
   word: string;
   start: number;
@@ -17,11 +16,23 @@ interface Sentence {
 
 interface SubtitlesWordProps {
   transcription: Sentence[];
+  fontFamily: string;
+  fontSize: number;
+  color: string;
+  position: 'bottom' | 'center' | 'top';
+  textAlign: 'center' | 'left' | 'right';
 }
 
-export const SubtitlesWord: React.FC<SubtitlesWordProps> = ({ transcription }) => {
+export const SubtitlesWord: React.FC<SubtitlesWordProps> = ({
+  transcription,
+  fontFamily,
+  fontSize,
+  color,
+  position,
+  textAlign,
+}) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps} = useVideoConfig();
 
   const currentSentence = transcription.find(
     (sentence) => frame >= sentence.start * fps && frame <= sentence.end * fps
@@ -31,7 +42,6 @@ export const SubtitlesWord: React.FC<SubtitlesWordProps> = ({ transcription }) =
     return null;
   }
 
-  // Find the word being spoken based on frame
   const currentWord = currentSentence.words.find(
     (word) => frame >= word.start * fps && frame <= word.end * fps
   );
@@ -45,15 +55,31 @@ export const SubtitlesWord: React.FC<SubtitlesWordProps> = ({ transcription }) =
     extrapolateRight: 'clamp',
   });
 
+  // Function to calculate subtitle position dynamically
+  // Remove 'height' since it's declared but not used.
+    const subtitlePosition = () => {
+      switch (position) {
+        case 'top':
+          return { top: '20%' };
+        case 'center':
+          return { top: '50%', transform: 'translateY(-50%)' };
+        case 'bottom':
+        default:
+          return { bottom: '20%' };
+      }
+    };
+
+
   return (
     <div
       style={{
         position: 'absolute',
-        bottom: '10%',
+        ...subtitlePosition(),
         width: '100%',
-        textAlign: 'center',
-        fontSize: '50px',
-        color: 'white',
+        textAlign: textAlign,
+        fontFamily,
+        fontSize: `${fontSize}px`,
+        color,
         opacity,
       }}
     >
