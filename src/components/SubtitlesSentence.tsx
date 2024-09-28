@@ -1,12 +1,10 @@
 import React from 'react';
 import { useCurrentFrame, useVideoConfig, interpolate } from 'remotion';
 
-// Subtitles component
-export const Subtitles: React.FC<{ transcription: any[] }> = ({ transcription }) => {
+export const SubtitlesSentence: React.FC<{ transcription: any[] }> = ({ transcription }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Find the current sentence based on the current frame
   const currentSubtitle = transcription.find(
     (sentence) => frame >= sentence.start * fps && frame <= sentence.end * fps
   );
